@@ -23,7 +23,7 @@ This project provides an API for uploading 3D model files with extensions `.usdz
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/3d-model-upload-api.git
+    git clone https://github.com/Marlz74/3D_models.git
     cd 3d-model-upload-api
     ```
 
