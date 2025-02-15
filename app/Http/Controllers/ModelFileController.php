@@ -88,7 +88,9 @@ class ModelFileController extends Controller
                     $path = $file->storeAs('3d_models', $filename, 's3');
                     $fileUrl = Storage::disk('s3')->url($path);
                     $modelFile->file_url = $fileUrl;
+                    $modelFile->file_url = $request->file;
                 }
+                $modelFile->file_url = $request->file;
                 $modelFile->caption = $request->caption;
                 $modelFile->save();
                 return response()->json(['message'=>'File updated successfully','data'=>$modelFile],200);
