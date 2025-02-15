@@ -2,11 +2,12 @@
 
 namespace App\Http\Middleware;
 
+use Auth;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class HandleInvalidEndpoints
+class Authenticate
 {
     /**
      * Handle an incoming request.
@@ -15,10 +16,9 @@ class HandleInvalidEndpoints
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $response= $next($request);
-        if($response->getStatusCode()===404){
-            return response()->json(['message' => 'Endpoint not found!'], 404);
-        }  
-        return $response;
+        if(!Auth::check()){
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+        return $next($request);
     }
 }
