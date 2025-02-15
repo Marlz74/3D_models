@@ -1,66 +1,213 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 3D Model File Upload API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This project provides an API for uploading 3D model files with extensions `.usdz` and `.glb` to an AWS S3 bucket. It also allows users to add captions to their files, and provides CRUD endpoints for managing these files.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- User registration and login with token-based authentication
+- Upload 3D model files to AWS S3
+- Add captions to uploaded files
+- Fetch details of all uploaded files
+- Update captions of uploaded files
+- Delete files from AWS S3 and the database
+- Protected routes for authenticated users
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.0+
+- Laravel 11+
+- AWS S3 bucket
+- Composer
 
-## Learning Laravel
+## Installation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/yourusername/3d-model-upload-api.git
+    cd 3d-model-upload-api
+    ```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+2. Install dependencies:
+    ```bash
+    composer install
+    ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3. Copy the [.env.example](http://_vscodecontentref_/1) file to [.env](http://_vscodecontentref_/2) and configure your environment variables, including database and AWS S3 credentials:
+    ```bash
+    cp .env.example .env
+    ```
 
-## Laravel Sponsors
+4. Generate an application key:
+    ```bash
+    php artisan key:generate
+    ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+5. Run the database migrations:
+    ```bash
+    php artisan migrate
+    ```
 
-### Premium Partners
+6. Install Laravel Sanctum:
+    ```bash
+    composer require laravel/sanctum
+    php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+    php artisan migrate
+    ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
 
-## Contributing
+## Usage
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Authentication Endpoints
 
-## Code of Conduct
+#### Register
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **URL**: `/auth/register`
+- **Method**: `POST`
+- **Request Body**:
+    ```json
+    {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "password": "secret123",
+        "password_confirmation": "secret123"
+    }
+    ```
+- **Response**:
+    ```json
+    {
+        "user": {
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "updated_at": "2025-02-15T11:18:29.000000Z",
+            "created_at": "2025-02-15T11:18:29.000000Z",
+            "id": 3
+        },
+        "access_token": "your-access-token"
+    }
+    ```
 
-## Security Vulnerabilities
+#### Login
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- **URL**: `/auth/login`
+- **Method**: `POST`
+- **Request Body**:
+    ```json
+    {
+        "email": "john.doe@example.com",
+        "password": "secret123"
+    }
+    ```
+- **Response**:
+    ```json
+    {
+        "user": {
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "updated_at": "2025-02-15T11:18:29.000000Z",
+            "created_at": "2025-02-15T11:18:29.000000Z",
+            "id": 3
+        },
+        "access_token": "your-access-token"
+    }
+    ```
+
+### File Management Endpoints
+
+#### Upload File
+
+- **URL**: `/upload`
+- **Method**: `POST`
+- **Request Body** (multipart/form-data):
+    - `file`: The 3D model file (`.usdz` or `.glb`)
+    - `caption`: The caption for the file
+- **Response**:
+    ```json
+    {
+        "message": "File uploaded successfully",
+        "data": {
+            "id": 1,
+            "file_url": "https://your-s3-bucket-url/3d_models/filename.usdz",
+            "caption": "Your caption",
+            "created_at": "2023-10-01T00:00:00.000000Z",
+            "updated_at": "2023-10-01T00:00:00.000000Z"
+        }
+    }
+    ```
+
+#### List Files
+
+- **URL**: `/list`
+- **Method**: `GET`
+- **Response**:
+    ```json
+    {
+        "data": [
+            {
+                "id": 1,
+                "file_url": "https://your-s3-bucket-url/3d_models/filename.usdz",
+                "caption": "Your caption",
+                "created_at": "2023-10-01T00:00:00.000000Z",
+                "updated_at": "2023-10-01T00:00:00.000000Z"
+            }
+        ]
+    }
+    ```
+
+#### Update File Caption
+
+- **URL**: `/update/{id}`
+- **Method**: `PUT`
+- **Request Body**:
+    ```json
+    {
+        "caption": "Updated caption"
+    }
+    ```
+- **Response**:
+    ```json
+    {
+        "message": "File updated successfully",
+        "data": {
+            "id": 1,
+            "file_url": "https://your-s3-bucket-url/3d_models/filename.usdz",
+            "caption": "Updated caption",
+            "created_at": "2023-10-01T00:00:00.000000Z",
+            "updated_at": "2023-10-01T00:00:00.000000Z"
+        }
+    }
+    ```
+
+#### Delete File
+
+- **URL**: `/delete/{id}`
+- **Method**: `DELETE`
+- **Response**:
+    ```json
+    {
+        "message": "File deleted successfully"
+    }
+    ```
+
+### User Profile Endpoint
+
+#### Get Profile
+
+- **URL**: `/profile`
+- **Method**: `GET`
+- **Headers**: `Authorization: Bearer your-access-token`
+- **Response**:
+    ```json
+    {
+        "user": {
+            "id": 1,
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "created_at": "2023-10-01T00:00:00.000000Z",
+            "updated_at": "2023-10-01T00:00:00.000000Z"
+        }
+    }
+    ```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is licensed under the MIT License. See the LICENSE file for details.
